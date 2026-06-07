@@ -1,19 +1,17 @@
----
-
-## 🚀 ResuMatch Pro v2.0
+# 🚀 ResuMatch Pro v2.0
 
 **Rule-Based NLP ATS & Recruitment Intelligence Platform**
 
 > *"Where Smart Resumes Meet Smart Recruiters"*
 
-G.L. Bajaj Institute of Technology and Management — Final Year B.Tech IT
+*G.L. Bajaj Institute of Technology and Management — Final Year B.Tech IT*
 
 ---
 
 ## ✅ 100% Complete — 210+ Files
 
 | Layer | Spec | Built | Status |
-|-------|------|-------|--------|
+|:------|:----:|:-----:|:------:|
 | Database Tables | 16 | 16 | ✅ |
 | JPA Models | 16 | 16 | ✅ |
 | Repositories | 16 | 16 | ✅ |
@@ -37,10 +35,27 @@ G.L. Bajaj Institute of Technology and Management — Final Year B.Tech IT
 
 ResuMatch Pro uses a **rule-based NLP engine** (not AI/ML) to analyze resumes:
 
-- **10-stage NLP pipeline:** text extraction → normalization → section detection → stopword removal → synonym normalization → skill extraction → action verb classification → experience estimation → achievement detection → contact detection
-- **6-category scoring algorithm** (100 points): Keyword Match (30pts), Skill Relevance (25pts), Experience Quality (20pts), Achievements & Impact (15pts), Formatting & Structure (10pts), Education Match (5pts)
-- **Confidence-weighted matching:** keyword scores vary by where they appear (Skills section = 1.0, Experience = 0.85, Projects = 0.75)
-- **Dynamic rescoring:** when a recruiter updates job requirements, all applicants are automatically rescored
+- **10-stage NLP pipeline:**
+  - Text Extraction → Normalization → Section Detection
+  - Stopword Removal → Synonym Normalization → Skill Extraction
+  - Action Verb Classification → Experience Estimation
+  - Achievement Detection → Contact Detection
+
+- **6-category scoring algorithm (100 points):**
+
+| Category | Points |
+|:---------|-------:|
+| Keyword Match | 30 pts |
+| Skill Relevance | 25 pts |
+| Experience Quality | 20 pts |
+| Achievements & Impact | 15 pts |
+| Formatting & Structure | 10 pts |
+| Education Match | 5 pts |
+
+- **Confidence-weighted matching:** keyword scores vary by location
+  - Skills Section = `1.0` · Experience = `0.85` · Projects = `0.75`
+- **Dynamic rescoring:** when a recruiter updates job requirements,
+  all applicants are automatically rescored
 - **500+ skill vocabulary** across 9 domains with 80+ synonym mappings
 
 ---
@@ -61,7 +76,7 @@ cd backend && mvn spring-boot:run
 open frontend/index.html
 
 # Default admin login:
-# Email: admin@resumatch.pro
+# Email:    admin@resumatch.pro
 # Password: Admin@123456
 ```
 
@@ -70,7 +85,7 @@ open frontend/index.html
 ## 🏗️ Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+|:------|:-----------|
 | Backend | Java 17, Spring Boot 3.2, Spring Security 6 |
 | Database | MySQL 8.0, Spring Data JPA, Hibernate |
 | Auth | JWT dual-token (15min access + 7-day refresh), BCrypt-12 |
@@ -82,6 +97,12 @@ open frontend/index.html
 
 ## 👥 Team
 
-**Shudanshu Sanjay Bora** · **Ketan Saini** · **Shivang Singh** · **Shreyansh Yadav** · **Sajal Rathore**
+| Member |
+|:-------|
+| Shudanshu Sanjay Bora |
+| Ketan Saini |
+| Shivang Singh |
+| Shreyansh Yadav |
+| Sajal Rathore |
 
 *G.L. Bajaj Institute of Technology and Management — Final Year B.Tech IT*
