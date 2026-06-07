@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: resumatch-mysql
+    environment:
+      MYSQL_DATABASE: resumatch_pro
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_USER: ${DB_USER:-resumatch_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-securepassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  minio:
+    image: minio/minio
+    container_name: resumatch-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minioadmin123}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: resumatch-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/resumatch_pro
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-resumatch_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-securepassword}
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-256-bit-secret-key}
+    volumes:
+      - ./logs:/app/logs
+
+  frontend:
+    image: nginx:alpine
+    container_name: resumatch-frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  minio_data:

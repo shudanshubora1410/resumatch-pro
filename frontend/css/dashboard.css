@@ -1,0 +1,197 @@
+/* ================================================================
+   Dashboard-specific styles for ResuMatch Pro
+   ================================================================ */
+
+/* Stat Cards */
+.stat-card {
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.stat-icon {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    font-size: 1.3rem;
+}
+
+/* Soft Background Icons */
+.bg-primary-soft { background: rgba(79,70,229,0.1); color: var(--primary); }
+.bg-success-soft { background: rgba(16,185,129,0.1); color: var(--success); }
+.bg-warning-soft { background: rgba(245,158,11,0.1); color: var(--warning); }
+.bg-danger-soft { background: rgba(239,68,68,0.1); color: var(--danger); }
+.bg-info-soft { background: rgba(6,182,212,0.1); color: var(--info); }
+
+/* Dashboard Top Bar */
+.dashboard-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.dashboard-welcome h4 {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.dashboard-welcome p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Grid Layouts */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+@media (max-width: 992px) {
+    .charts-row { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Job Cards (recruiter dashboard) */
+.job-performance-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--card-bg);
+    transition: all 0.15s ease;
+}
+.job-performance-card:hover {
+    border-color: var(--primary-light);
+    background: var(--bg-secondary);
+}
+.job-performance-card .job-stats {
+    display: flex;
+    gap: 20px;
+    text-align: center;
+}
+.job-performance-card .job-stat {
+    min-width: 50px;
+}
+.job-performance-card .stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: block;
+}
+.job-performance-card .stat-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Leaderboard */
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+.leaderboard-item:last-child { border-bottom: none; }
+.leaderboard-rank {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem;
+    flex-shrink: 0;
+}
+.leaderboard-rank.gold { background: #FEF3C7; color: #92400E; }
+.leaderboard-rank.silver { background: #F1F5F9; color: #475569; }
+.leaderboard-rank.bronze { background: #FEF3C7; color: #B45309; }
+
+/* Skill Gap Analysis */
+.skill-gap-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+}
+.skill-gap-bar .gap-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.skill-gap-bar .gap-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--danger);
+}
+.skill-gap-bar .gap-count {
+    min-width: 30px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--danger);
+}
+
+/* Activity Feed */
+.activity-feed {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.activity-feed li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    font-size: 0.85rem;
+}
+.activity-feed li:last-child { border-bottom: none; }
+.activity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+.activity-dot.status-change { background: var(--primary); }
+.activity-dot.shortlisted { background: var(--success); }
+.activity-dot.rejected { background: var(--danger); }
+.activity-dot.interview { background: #7C3AED; }
+.activity-time {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* Welcome card */
+.welcome-card {
+    background: linear-gradient(135deg, var(--primary), #7C3AED);
+    color: white;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+}
+.welcome-card h3 { margin: 0 0 8px; font-weight: 700; }
+.welcome-card p { margin: 0; opacity: 0.9; }
+.welcome-card .btn {
+    margin-top: 16px;
+    background: white;
+    color: var(--primary);
+    font-weight: 600;
+    border: none;
+}

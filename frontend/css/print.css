@@ -1,0 +1,9 @@
+@media print {
+    .navbar,.dashboard-sidebar,#darkModeToggle,.no-print,.btn,.dropdown,.notification-bell,nav,aside{display:none!important}
+    .dashboard-layout{display:block!important}.dashboard-main{padding:0!important;margin:0!important;max-width:100%!important}
+    body{font-size:12pt;color:#000;background:#fff}.card{box-shadow:none!important;border:1px solid #ccc!important;page-break-inside:avoid}
+    .score-badge,.status-badge,.badge{border:1px solid #666!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .text-primary{color:#000!important}.text-muted{color:#666!important}
+    .bg-primary{background:#eee!important;color:#000!important}
+    @page{margin:1.5cm}
+}

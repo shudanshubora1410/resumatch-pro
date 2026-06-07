@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Job Details – ResuMatch Pro</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/dark-mode.css">
+<style>.detail-card{border:1px solid var(--border);border-radius:12px;padding:24px;background:var(--card-bg);margin-bottom:16px}.detail-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary)}.apply-section{position:sticky;top:80px}</style></head><body>
+<nav class="navbar navbar-light bg-white border-bottom shadow-sm"><div class="container-fluid px-4">
+<a class="navbar-brand fw-bold" href="dashboard.html"><i class="fa-solid fa-file-lines text-primary"></i> ResuMatch Pro</a>
+<div class="d-flex align-items-center gap-3">
+<button id="darkModeToggle" class="btn btn-outline-secondary btn-sm rounded-circle"><i class="fa-solid fa-moon"></i></button>
+<a href="browse-jobs.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-left me-1"></i> Back</a></div></div></nav>
+
+<div class="dashboard-layout">
+<aside class="dashboard-sidebar"><nav>
+<a href="dashboard.html" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+<a href="browse-jobs.html" class="sidebar-link active"><i class="fa-solid fa-search"></i> Browse Jobs</a>
+<a href="my-applications.html" class="sidebar-link"><i class="fa-solid fa-list-check"></i> Applications</a></nav></aside>
+
+<main class="dashboard-main">
+<div id="skeletonLoader"><div class="skeleton" style="height:40px;width:60%;margin-bottom:16px;"></div><div class="skeleton" style="height:200px;border-radius:12px;margin-bottom:16px;"></div><div class="skeleton" style="height:150px;border-radius:12px;"></div></div>
+
+<div class="row" id="jobContent" style="display:none">
+<div class="col-lg-8">
+<div class="detail-card"><h3 class="fw-bold mb-1" id="jTitle">--</h3><p class="text-muted mb-3" id="jCompanyLocation">--</p>
+<div class="d-flex flex-wrap gap-2 mb-3" id="jMeta"></div>
+<div class="d-flex flex-wrap gap-2 mb-3" id="jSkills"></div></div>
+
+<div class="detail-card"><h6 class="fw-bold mb-3"><i class="fa-solid fa-align-left me-2"></i>Description</h6><div id="jDescription"></div></div>
+<div class="detail-card"><h6 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2"></i>Requirements</h6><div id="jRequirements"></div></div>
+</div>
+
+<div class="col-lg-4">
+<div class="apply-section"><div class="detail-card">
+<h6 class="fw-bold mb-3"><i class="fa-solid fa-paper-plane me-2"></i>Apply Now</h6>
+<div class="mb-3"><label class="form-label small fw-medium">Select Resume</label><select class="form-select" id="resumeSelect"><option value="">Loading resumes...</option></select></div>
+<button class="btn btn-primary w-100 mb-2" id="applyBtn" onclick="applyToJob()"><i class="fa-solid fa-paper-plane me-2"></i>Apply Now</button>
+<button class="btn btn-outline-secondary w-100" id="bookmarkBtn" onclick="toggleBookmark()"><i class="fa-regular fa-bookmark me-2"></i> Save Job</button>
+<div class="text-danger small mt-2 d-none" id="applyError"></div>
+<div class="text-success small mt-2 d-none" id="applySuccess"></div>
+</div>
+<div class="detail-card"><h6 class="fw-bold mb-3"><i class="fa-solid fa-circle-info me-2"></i>Job Info</h6>
+<div class="small"><div class="d-flex justify-content-between mb-2"><span class="detail-label">Type</span><span id="jType">--</span></div>
+<div class="d-flex justify-content-between mb-2"><span class="detail-label">Experience</span><span id="jExp">--</span></div>
+<div class="d-flex justify-content-between mb-2"><span class="detail-label">Salary</span><span id="jSalary">--</span></div>
+<div class="d-flex justify-content-between mb-2"><span class="detail-label">Openings</span><span id="jOpenings">--</span></div>
+<div class="d-flex justify-content-between mb-2"><span class="detail-label">Deadline</span><span id="jDeadline" class="text-danger">--</span></div>
+<div class="d-flex justify-content-between mb-2"><span class="detail-label">Views</span><span id="jViews">--</span></div></div></div></div>
+</div></div>
+</main></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/dark-mode.js"></script><script src="../js/utils.js"></script><script src="../js/api.js"></script><script src="../js/toast.js"></script><script src="../js/auth.js"></script>
+<script>
+Utils.requireAuth();
+var jobId = new URLSearchParams(window.location.search).get('id');
+var isBookmarked = false;
+if (!jobId) { document.getElementById('skeletonLoader').style.display='none'; document.getElementById('jobContent').innerHTML='<div class="alert alert-warning text-center py-5"><i class="fa-solid fa-exclamation-triangle fa-3x text-muted mb-3 d-block"></i><p>No job ID provided. <a href="browse-jobs.html">Browse Jobs</a></p></div>'; } var jobData = null;
+
+// Load job + resumes
+setTimeout(function() { return; } // unused
+  Api.get("/seeker/jobs/" + jobId).then(function(r) {
+    if (r.success && r.data) {
+      jobData = r.data;
+      renderJob(jobData);
+      document.getElementById("skeletonLoader").style.display = "none";
+      document.getElementById("jobContent").style.display = "flex";
+    } else {
+      document.getElementById("skeletonLoader").innerHTML = '<div class="alert alert-warning text-center py-5">Job not found. <a href="browse-jobs.html">Browse Jobs</a></div>';
+    }
+  }).catch(function() {
+    document.getElementById("skeletonLoader").innerHTML = '<div class="alert alert-danger text-center py-5">Failed to load job. <a href="browse-jobs.html">Browse Jobs</a></div>';
+  });
+
+  Api.get("/seeker/resume/all?page=0&size=10").then(function(r) {
+    if (r.success && r.data && r.data.content) {
+      var opts = '<option value="">-- Choose Resume --</option>';
+      r.data.content.forEach(function(res) {
+        opts += '<option value="' + res.id + '">' + res.originalFilename + ' (uploaded ' + Utils.formatDate(res.uploadDate) + ')</option>';
+      });
+      document.getElementById("resumeSelect").innerHTML = opts;
+    }
+  });
+}, 300);
+    // Mock success
+    setTimeout(function() { return; } // unused
+        document.getElementById('applySuccess').classList.remove('d-none');
+        document.getElementById('applySuccess').textContent = 'Application submitted! Redirecting...';
+        document.getElementById('applyBtn').innerHTML = '<i class="fa-solid fa-check me-2"></i>Applied';
+        document.getElementById('applyBtn').className = 'btn btn-success w-100 mb-2';
+        Toast.show('Application submitted successfully!', 'success');
+        setTimeout(function() { return; } // unused window.location.href = 'my-applications.html'; }, 1500);
+    }, 800);
+}
+
+function toggleBookmark() {
+    isBookmarked = !isBookmarked;
+    var btn = document.getElementById('bookmarkBtn');
+    if (isBookmarked) {
+        btn.innerHTML = '<i class="fa-solid fa-bookmark me-2"></i> Saved';
+        btn.className = 'btn btn-success w-100';
+        Toast.show('Job saved!', 'success');
+    } else {
+        btn.innerHTML = '<i class="fa-regular fa-bookmark me-2"></i> Save Job';
+        btn.className = 'btn btn-outline-secondary w-100';
+        Toast.show('Job removed from saved', 'info');
+    }
+}
+</script></body></html>

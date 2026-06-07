@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Post Job – ResuMatch Pro</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/dark-mode.css">
+<style>
+.step-indicator{display:flex;align-items:center;justify-content:center;margin-bottom:2rem;gap:0}
+.step-dot{width:36px;height:36px;border-radius:50%;background:var(--gray-200);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;transition:all 0.3s}.step-dot.active{background:var(--primary);color:white}.step-dot.done{background:var(--success);color:white}
+.step-line{width:50px;height:3px;background:var(--gray-200);transition:all 0.3s}.step-line.done{background:var(--success)}
+.step-panel{display:none}.step-panel.active{display:block}
+</style></head><body>
+<nav class="navbar navbar-light bg-white border-bottom shadow-sm"><div class="container-fluid px-4">
+<a class="navbar-brand fw-bold" href="dashboard.html"><i class="fa-solid fa-file-lines text-primary"></i> ResuMatch Pro</a>
+<div class="d-flex align-items-center gap-3">
+<button id="darkModeToggle" class="btn btn-outline-secondary btn-sm rounded-circle"><i class="fa-solid fa-moon"></i></button>
+<a href="dashboard.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-left me-1"></i> Dashboard</a></div></div></nav>
+
+<div class="dashboard-layout">
+<aside class="dashboard-sidebar"><nav>
+<a href="dashboard.html" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+<a href="post-job.html" class="sidebar-link active"><i class="fa-solid fa-plus-circle"></i> Post Job</a>
+<a href="manage-jobs.html" class="sidebar-link"><i class="fa-solid fa-briefcase"></i> Manage Jobs</a>
+<a href="bulk-screen.html" class="sidebar-link"><i class="fa-solid fa-upload"></i> Bulk Screen</a></nav></aside>
+
+<main class="dashboard-main">
+<h4 class="fw-bold mb-4">Post New Job</h4>
+
+<!-- Step Indicator -->
+<div class="step-indicator mb-4">
+<div class="step-dot active" id="step1Dot">1</div><div class="step-line" id="step1Line"></div>
+<div class="step-dot" id="step2Dot">2</div><div class="step-line" id="step2Line"></div>
+<div class="step-dot" id="step3Dot">3</div><div class="step-line" id="step3Line"></div>
+<div class="step-dot" id="step4Dot">4</div>
+</div>
+
+<div class="card"><div class="card-body p-4">
+<form id="jobForm" novalidate>
+
+<!-- Step 1: Basic Info -->
+<div class="step-panel active" id="step1">
+<h5 class="fw-bold mb-3"><i class="fa-solid fa-circle-info me-2"></i>Basic Information</h5>
+<div class="mb-3"><label class="form-label">Job Title *</label><input type="text" class="form-control" id="jobTitle" placeholder="e.g., Senior Java Developer" required></div>
+<div class="mb-3"><label class="form-label">Job Description</label><textarea class="form-control" id="jobDescription" rows="5" placeholder="Describe the role, responsibilities, and what you're looking for..."></textarea><small class="text-muted" id="descCount">0 characters</small></div>
+<div class="row"><div class="col-md-6 mb-3"><label class="form-label">Industry</label><select class="form-select" id="industry"><option value="">Select</option><option>Information Technology</option><option>Finance</option><option>Healthcare</option><option>Education</option><option>Manufacturing</option><option>Other</option></select></div>
+<div class="col-md-6 mb-3"><label class="form-label">Job Type *</label><select class="form-select" id="jobType"><option value="FULL_TIME">Full-time</option><option value="PART_TIME">Part-time</option><option value="INTERNSHIP">Internship</option><option value="CONTRACT">Contract</option></select></div></div>
+<div class="mb-3"><label class="form-label">Number of Openings</label><input type="number" class="form-control" id="openings" value="1" min="1"></div>
+</div>
+
+<!-- Step 2: Requirements -->
+<div class="step-panel" id="step2">
+<h5 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2"></i>Requirements</h5>
+<div class="mb-3"><label class="form-label">Required Skills <small class="text-muted">(comma-separated)</small></label><div id="requiredSkillsChips" style="margin-bottom:8px"></div><input type="text" class="form-control" id="requiredSkills" placeholder="Java, Spring Boot, MySQL, Docker..."></div>
+<div class="mb-3"><label class="form-label">Preferred Skills <small class="text-muted">(bonus skills)</small></label><input type="text" class="form-control" id="preferredSkills" placeholder="Kubernetes, AWS, CI/CD..."></div>
+<div class="mb-3"><label class="form-label">ATS Keywords <small class="text-muted">(keywords recruiters want to see in resumes)</small></label><div id="atsKeywordsChips" style="margin-bottom:8px"></div><input type="text" class="form-control" id="atsKeywords" placeholder="Java, Spring Boot, Microservices, JPA, Docker..."><small class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>These are the keywords the ATS will scan for in candidate resumes</small></div>
+<div class="row"><div class="col-md-6 mb-3"><label class="form-label">Min Experience (years)</label><input type="number" class="form-control" id="minExp" value="0" min="0"><small class="text-muted">Set to 0 for fresher roles</small></div>
+<div class="col-md-6 mb-3"><label class="form-label">Education Requirement</label><input type="text" class="form-control" id="educationReq" placeholder="B.Tech Computer Science"></div></div>
+</div>
+
+<!-- Step 3: Location & Compensation -->
+<div class="step-panel" id="step3">
+<h5 class="fw-bold mb-3"><i class="fa-solid fa-location-dot me-2"></i>Location & Compensation</h5>
+<div class="row"><div class="col-md-6 mb-3"><label class="form-label">Location</label><input type="text" class="form-control" id="location" placeholder="Mumbai / Remote"></div>
+<div class="col-md-6 mb-3 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" id="isRemote"><label class="form-check-label" for="isRemote">This is a remote position</label></div></div></div>
+<div class="row"><div class="col-md-6 mb-3"><label class="form-label">Salary Range <small class="text-muted">(optional)</small></label><input type="text" class="form-control" id="salaryRange" placeholder="₹8-15 LPA"></div>
+<div class="col-md-6 mb-3"><label class="form-label">Application Deadline</label><input type="date" class="form-control" id="deadline"></div></div>
+</div>
+
+<!-- Step 4: Preview -->
+<div class="step-panel" id="step4">
+<h5 class="fw-bold mb-3"><i class="fa-solid fa-eye me-2"></i>Preview & Publish</h5>
+<div class="alert alert-warning small mb-3"><i class="fa-solid fa-triangle-exclamation me-1"></i><b>Important:</b> Once published, updating requirements will automatically rescore all existing applicants.</div>
+<div class="card bg-light"><div class="card-body"><h5 class="fw-bold" id="prevTitle">--</h5><p class="text-muted mb-2" id="prevMeta">--</p><div id="prevSkills"></div><p class="small mt-2" id="prevDesc">--</p><div class="d-flex gap-3 small mt-2"><span id="prevType">--</span><span id="prevLoc">--</span><span id="prevExp">--</span><span id="prevSalary">--</span></div></div></div>
+<div class="d-flex justify-content-between mt-3">
+<label class="form-check"><input class="form-check-input" type="checkbox" id="saveAsDraft"> Save as Draft</label>
+<button type="button" class="btn btn-success btn-lg" id="publishBtn"><i class="fa-solid fa-rocket me-2"></i>Publish Job</button>
+</div>
+</div>
+
+<!-- Navigation -->
+<div class="d-flex justify-content-between mt-4 border-top pt-3">
+<button type="button" class="btn btn-outline-secondary" id="prevBtn" onclick="changeStep(-1)" disabled><i class="fa-solid fa-arrow-left me-1"></i> Previous</button>
+<button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">Next <i class="fa-solid fa-arrow-right ms-1"></i></button>
+</div>
+</form></div></div>
+</main></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/dark-mode.js"></script><script src="../js/utils.js"></script><script src="../js/api.js"></script><script src="../js/toast.js"></script><script src="../js/auth.js"></script>
+<script>
+Utils.requireAuth();
+var currentStep = 1;
+var totalSteps = 4;
+
+// Chip inputs for skills
+function setupChipInput(inputId, chipsId) {
+    var input = document.getElementById(inputId);
+    var container = document.getElementById(chipsId);
+    if (!input || !container) return;
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            var val = input.value.replace(/,/g, '').trim();
+            if (val) {
+                var chips = container.querySelectorAll('.chip');
+                var exists = false;
+                chips.forEach(function(c) { if (c.textContent.replace('×','').trim().toLowerCase() === val.toLowerCase()) exists = true; });
+                if (!exists) {
+                    var chip = document.createElement('span');
+                    chip.className = 'chip';
+                    chip.innerHTML = val + ' <i class="fa-solid fa-xmark" style="cursor:pointer;margin-left:4px;font-size:0.7rem"></i>';
+                    chip.querySelector('i').addEventListener('click', function() { chip.remove(); });
+                    container.appendChild(chip);
+                }
+                input.value = '';
+            }
+        }
+    });
+}
+setupChipInput('requiredSkills', 'requiredSkillsChips');
+setupChipInput('atsKeywords', 'atsKeywordsChips');
+
+// Character count
+document.getElementById('jobDescription').addEventListener('input', function() {
+    document.getElementById('descCount').textContent = this.value.length + ' characters';
+});
+
+function changeStep(delta) {
+    var newStep = currentStep + delta;
+    if (newStep < 1 || newStep > totalSteps) return;
+    document.getElementById('step' + currentStep).classList.remove('active');
+    document.getElementById('step' + newStep).classList.add('active');
+
+    // Update step dots
+    for (var i = 1; i <= totalSteps; i++) {
+        var dot = document.getElementById('step' + i + 'Dot');
+        dot.classList.remove('active', 'done');
+        if (i < newStep) dot.classList.add('done');
+        if (i === newStep) dot.classList.add('active');
+        if (i < totalSteps) {
+            var line = document.getElementById('step' + i + 'Line');
+            line.classList.toggle('done', i < newStep);
+        }
+    }
+    currentStep = newStep;
+    document.getElementById('prevBtn').disabled = currentStep === 1;
+    if (currentStep === totalSteps) {
+        document.getElementById('nextBtn').style.display = 'none';
+        updatePreview();
+    } else {
+        document.getElementById('nextBtn').style.display = '';
+    }
+}
+
+function updatePreview() {
+    document.getElementById('prevTitle').textContent = document.getElementById('jobTitle').value || 'Job Title';
+    document.getElementById('prevMeta').textContent = (document.getElementById('industry').value || 'Industry') + ' · ' + (document.getElementById('jobType').value || 'Full-time').replace('_',' ');
+    document.getElementById('prevDesc').textContent = (document.getElementById('jobDescription').value || 'No description').substring(0, 200) + '...';
+    document.getElementById('prevType').innerHTML = '<b>Type:</b> ' + (document.getElementById('jobType').value||'').replace('_',' ');
+    document.getElementById('prevLoc').innerHTML = '<b>Location:</b> ' + (document.getElementById('isRemote').checked ? 'Remote' : (document.getElementById('location').value||'N/A'));
+    document.getElementById('prevExp').innerHTML = '<b>Experience:</b> ' + (document.getElementById('minExp').value||0) + '+ years';
+    document.getElementById('prevSalary').innerHTML = '<b>Salary:</b> ' + (document.getElementById('salaryRange').value||'Not disclosed');
+
+    var skills = document.getElementById('requiredSkills').value || 'N/A';
+    document.getElementById('prevSkills').innerHTML = '<b>Skills:</b> ' + skills.split(',').map(function(s) { return '<span class="badge bg-primary me-1">'+s.trim()+'</span>'; }).join('');
+}
+
+document.getElementById('publishBtn').addEventListener('click', function() {
+    var isDraft = document.getElementById("saveAsDraft").checked;
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Publishing...';
+    var formData = {
+      jobTitle: document.getElementById("jobTitle").value,
+      jobDescription: document.getElementById("jobDescription").value,
+      jobType: document.getElementById("jobType").value,
+      industry: document.getElementById("industry").value,
+      numberOfOpenings: parseInt(document.getElementById("openings").value) || 1,
+      requiredSkills: document.getElementById("requiredSkills").value,
+      preferredSkills: document.getElementById("preferredSkills").value,
+      atsKeywords: document.getElementById("atsKeywords").value,
+      minExperienceYears: parseInt(document.getElementById("minExp").value) || 0,
+      educationRequirement: document.getElementById("educationReq").value,
+      location: document.getElementById("location").value,
+      isRemote: document.getElementById("isRemote").checked,
+      salaryRange: document.getElementById("salaryRange").value,
+      applicationDeadline: document.getElementById("deadline").value,
+      status: isDraft ? "DRAFT" : "ACTIVE"
+    };
+    var self = this;
+    Api.post("/recruiter/jobs", formData).then(function(r) {
+      if (r.success) {
+        Toast.show(isDraft ? "Saved as draft!" : "Published!", "success");
+        setTimeout(function() { window.location.href = "manage-jobs.html"; }, 1000);
+      } else {
+        Toast.show(r.message || "Failed to publish", "error");
+        self.disabled = false;
+        self.innerHTML = '<i class="fa-solid fa-rocket me-2"></i>Publish Job';
+      }
+    }).catch(function() {
+      Toast.show("Network error", "error");
+      self.disabled = false;
+      self.innerHTML = '<i class="fa-solid fa-rocket me-2"></i>Publish Job';
+    });
+
+document.getElementById('isRemote').addEventListener('change', function() {
+    document.getElementById('location').disabled = this.checked;
+    if (this.checked) document.getElementById('location').value = 'Remote';
+});
+</script></body></html>

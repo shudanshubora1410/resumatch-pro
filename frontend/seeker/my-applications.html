@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Applications – ResuMatch Pro</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/dark-mode.css">
+<style>.app-row{border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;background:var(--card-bg);transition:all 0.2s}.app-row:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}.pipeline-step{width:24px;height:24px;border-radius:50%;border:2px solid var(--gray-300);display:inline-flex;align-items:center;justify-content:center;font-size:0.65rem;margin:0 2px}.pipeline-step.done{background:var(--success);border-color:var(--success);color:white}.pipeline-step.current{background:var(--primary);border-color:var(--primary);color:white}.pipeline-step.rejected{background:var(--danger);border-color:var(--danger);color:white}</style></head><body>
+<nav class="navbar navbar-light bg-white border-bottom shadow-sm"><div class="container-fluid px-4">
+<a class="navbar-brand fw-bold" href="dashboard.html"><i class="fa-solid fa-file-lines text-primary"></i> ResuMatch Pro</a>
+<div class="d-flex align-items-center gap-3">
+<button id="darkModeToggle" class="btn btn-outline-secondary btn-sm rounded-circle"><i class="fa-solid fa-moon"></i></button>
+<a href="dashboard.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-left me-1"></i> Dashboard</a></div></div></nav>
+
+<div class="dashboard-layout">
+<aside class="dashboard-sidebar"><nav>
+<a href="dashboard.html" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+<a href="browse-jobs.html" class="sidebar-link"><i class="fa-solid fa-search"></i> Browse Jobs</a>
+<a href="my-applications.html" class="sidebar-link active"><i class="fa-solid fa-list-check"></i> Applications</a>
+<a href="recommendations.html" class="sidebar-link"><i class="fa-solid fa-lightbulb"></i> Recommendations</a></nav></aside>
+
+<main class="dashboard-main">
+<h4 class="fw-bold mb-1">My Applications</h4><p class="text-muted mb-4">Track your application pipeline</p>
+
+<!-- Stats pills -->
+<div class="d-flex gap-2 flex-wrap mb-3" id="statusFilters">
+<button class="btn btn-sm btn-outline-secondary active" onclick="filterApps('ALL')">All</button>
+<button class="btn btn-sm btn-outline-primary" onclick="filterApps('APPLIED')">Applied</button>
+<button class="btn btn-sm btn-outline-warning" onclick="filterApps('UNDER_REVIEW')">Under Review</button>
+<button class="btn btn-sm btn-outline-success" onclick="filterApps('SHORTLISTED')">Shortlisted</button>
+<button class="btn btn-sm btn-outline-info" onclick="filterApps('INTERVIEW_SCHEDULED')">Interview</button>
+<button class="btn btn-sm btn-outline-danger" onclick="filterApps('REJECTED')">Rejected</button>
+<button class="btn btn-sm btn-outline-dark" onclick="filterApps('HIRED')">Hired</button>
+</div>
+
+<div id="skeletonLoader"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width:80%"></div><div class="skeleton skeleton-text" style="width:60%"></div></div>
+<div id="applicationsContent"></div>
+<div id="applicationsPagination"></div>
+</main></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/dark-mode.js"></script><script src="../js/utils.js"></script><script src="../js/api.js"></script><script src="../js/toast.js"></script><script src="../js/auth.js"></script><script src="../js/pagination.js"></script>
+<script>
+Utils.requireAuth();
+var currentFilter = 'ALL';
+var currentPage = 0;
+var apps = [
+    {id:1,jobTitle:"Java Backend Developer",companyName:"TCS",score:78,status:"SHORTLISTED",appliedAt:"2026-05-18",resumeName:"Resume_v3.pdf"},
+    {id:2,jobTitle:"React Frontend Developer",companyName:"Infosys",score:65,status:"INTERVIEW_SCHEDULED",appliedAt:"2026-05-15",resumeName:"Resume_v2.docx",interviewDate:"2026-05-28T10:00"},
+    {id:3,jobTitle:"DevOps Engineer Intern",companyName:"Wipro",score:52,status:"UNDER_REVIEW",appliedAt:"2026-05-20",resumeName:"Resume_v3.pdf"},
+    {id:4,jobTitle:"Data Scientist",companyName:"Accenture",score:45,status:"REJECTED",appliedAt:"2026-05-10",resumeName:"Resume_v1.pdf"},
+    {id:5,jobTitle:"Full Stack Developer",companyName:"StartupXYZ",score:90,status:"APPLIED",appliedAt:"2026-05-22",resumeName:"Resume_v3.pdf"}
+];
+
+setTimeout(function() {
+    document.getElementById('skeletonLoader').style.display = 'none';
+    renderApps(apps);
+}, 400);
+
+function filterApps(status) {
+    currentFilter = status;
+    document.querySelectorAll('#statusFilters button').forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+    renderApps(apps);
+}
+
+function renderApps(allApps) {
+    var filtered = currentFilter === 'ALL' ? allApps : allApps.filter(function(a) { return a.status === currentFilter; });
+    var html = '';
+    if (filtered.length === 0) {
+        html = '<div class="text-center py-5"><i class="fa-solid fa-inbox fa-3x text-muted mb-3 d-block"></i><p class="text-muted">No applications in this category</p><a href="browse-jobs.html" class="btn btn-primary btn-sm">Browse Jobs</a></div>';
+    }
+    filtered.forEach(function(a) {
+        var sc = a.score || 0;
+        var scoreColor = sc >= 70 ? 'score-badge green' : sc >= 50 ? 'score-badge orange' : 'score-badge red';
+        var statusCls = Utils.getStatusClass(a.status);
+        html += '<div class="app-row"><div class="row align-items-center"><div class="col-md-4"><h6 class="fw-bold mb-1">' + a.jobTitle + '</h6><p class="small text-muted mb-0">' + a.companyName + '</p></div><div class="col-md-2"><span class="' + scoreColor + '">' + sc + '/100</span></div><div class="col-md-2"><span class="status-badge ' + statusCls + '">' + Utils.getStatusLabel(a.status) + '</span>' + (a.interviewDate ? '<br><small class="text-muted">' + Utils.formatDate(a.interviewDate) + '</small>' : '') + '</div><div class="col-md-2"><small class="text-muted">' + Utils.formatDate(a.appliedAt) + '</small></div><div class="col-md-2 text-end"><a href="analysis-report.html?appId=' + a.id + '" class="btn btn-sm btn-outline-primary">View Report</a></div></div>';
+        // Pipeline dots
+        var stages = ['APPLIED','UNDER_REVIEW','SHORTLISTED','INTERVIEW_SCHEDULED','INTERVIEW_DONE','OFFERED','HIRED'];
+        var reachedIdx = stages.indexOf(a.status);
+        if (a.status === 'REJECTED') reachedIdx = -2;
+        html += '<div class="d-flex align-items-center mt-2 small"><span class="text-muted me-2">Pipeline:</span>';
+        stages.forEach(function(s, i) {
+            var cls = 'pipeline-step';
+            if (reachedIdx === -2 && i <= 1) cls += ' done';
+            else if (i <= reachedIdx) cls += ' done';
+            else if (i === reachedIdx + 1 && reachedIdx >= 0) cls += ' current';
+            html += '<div class="' + cls + '">' + (i <= reachedIdx || (reachedIdx === -2 && i <= 1) ? '✓' : i+1) + '</div>';
+            if (i < stages.length - 1) html += '<div style="width:20px;height:1px;background:var(--gray-300);"></div>';
+        });
+        if (a.status === 'REJECTED') html += '<span class="ms-2"><span class="pipeline-step rejected">✗</span> <small class="text-danger">Rejected</small></span>';
+        html += '</div></div>';
+    });
+    document.getElementById('applicationsContent').innerHTML = html;
+    Pagination.render('applicationsPagination', 0, 1, function(p) { currentPage = p; renderApps(apps); });
+}
+</script></body></html>

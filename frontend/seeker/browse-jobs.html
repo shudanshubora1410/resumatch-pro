@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Browse Jobs – ResuMatch Pro</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/dark-mode.css">
+<style>
+.job-card{border:1px solid var(--border);border-radius:12px;padding:20px;background:var(--card-bg);transition:all 0.2s;cursor:pointer;margin-bottom:12px}
+.job-card:hover{border-color:var(--primary);box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-1px)}
+.job-card .company-logo{width:48px;height:48px;border-radius:10px;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:bold;color:var(--primary)}
+.filter-bar{padding:16px;border-radius:12px;background:var(--card-bg);border:1px solid var(--border);margin-bottom:16px}
+.job-type-badge{font-size:0.7rem;padding:3px 8px;border-radius:10px}.match-pill{font-size:0.75rem;padding:3px 10px;border-radius:12px;background:#D1FAE5;color:#065F46;font-weight:600}
+</style></head><body>
+<nav class="navbar navbar-light bg-white border-bottom shadow-sm"><div class="container-fluid px-4">
+<a class="navbar-brand fw-bold" href="dashboard.html"><i class="fa-solid fa-file-lines text-primary"></i> ResuMatch Pro</a>
+<div class="d-flex align-items-center gap-3">
+<button id="darkModeToggle" class="btn btn-outline-secondary btn-sm rounded-circle"><i class="fa-solid fa-moon"></i></button>
+<a href="dashboard.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-left me-1"></i> Dashboard</a>
+</div></div></nav>
+
+<div class="dashboard-layout">
+<aside class="dashboard-sidebar"><nav>
+<a href="dashboard.html" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+<a href="browse-jobs.html" class="sidebar-link active"><i class="fa-solid fa-search"></i> Browse Jobs</a>
+<a href="saved-jobs.html" class="sidebar-link"><i class="fa-solid fa-bookmark"></i> Saved Jobs</a>
+<a href="my-applications.html" class="sidebar-link"><i class="fa-solid fa-list-check"></i> Applications</a>
+<a href="recommendations.html" class="sidebar-link"><i class="fa-solid fa-lightbulb"></i> Recommendations</a></nav></aside>
+
+<main class="dashboard-main">
+<h4 class="fw-bold mb-3">Browse Jobs</h4>
+
+<!-- Filter Bar -->
+<div class="filter-bar"><div class="row g-2 align-items-end">
+<div class="col-md-4"><label class="form-label small fw-medium">Search</label>
+<div class="input-group"><span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span><input type="text" class="form-control" id="searchInput" placeholder="Job title, company, keyword..." onkeyup="debounceSearch()"></div></div>
+<div class="col-md-2"><label class="form-label small fw-medium">Job Type</label><select class="form-select" id="typeFilter" onchange="fetchJobs()"><option value="">All Types</option><option>FULL_TIME</option><option>PART_TIME</option><option>INTERNSHIP</option><option>CONTRACT</option></select></div>
+<div class="col-md-2"><label class="form-label small fw-medium">Location</label><input type="text" class="form-control" id="locationFilter" placeholder="City..." onkeyup="debounceSearch()"></div>
+<div class="col-md-2"><label class="form-label small fw-medium">Min Experience</label><input type="number" class="form-control" id="expFilter" placeholder="Years" min="0" onchange="fetchJobs()"></div>
+<div class="col-md-2"><label class="form-label small fw-medium">Sort By</label><select class="form-select" id="sortFilter" onchange="fetchJobs()"><option value="newest">Newest</option><option value="deadline">Deadline</option><option value="company">Company</option></select></div>
+</div></div>
+
+<!-- Results -->
+<div id="jobsContainer"><div id="jobsContent"><div class="text-center py-5"><div class="spinner-border text-primary mb-2"></div><p class="text-muted">Loading jobs...</p></div></div>
+<div id="jobsPagination"></div></div>
+</main></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/dark-mode.js"></script><script src="../js/utils.js"></script><script src="../js/api.js"></script><script src="../js/toast.js"></script><script src="../js/auth.js"></script><script src="../js/pagination.js"></script>
+<script>
+Utils.requireAuth();
+var currentPage = 0;
+var searchTimeout;
+
+function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(fetchJobs, 400); }
+
+function fetchJobs() {
+    var params = 'page=' + currentPage + '&size=10';
+    var search = document.getElementById('searchInput').value.trim();
+    var type = document.getElementById('typeFilter').value;
+    var loc = document.getElementById('locationFilter').value.trim();
+    var exp = document.getElementById('expFilter').value;
+    var sort = document.getElementById('sortFilter').value;
+    if (search) params += '&search=' + encodeURIComponent(search);
+    if (type) params += '&type=' + type;
+    if (loc) params += '&location=' + encodeURIComponent(loc);
+    if (exp) params += '&minExp=' + exp;
+    if (sort) params += '&sort=' + sort;
+
+    document.getElementById('jobsContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary mb-2"></div></div>';
+
+    // Demo: generate mock jobs since API may not be running
+    setTimeout(function() {
+        var mockJobs = [
+            {id:1,jobTitle:"Java Backend Developer",companyName:"TCS",location:"Mumbai",jobType:"FULL_TIME",isRemote:false,requiredSkills:"Java,Spring Boot,MySQL,Docker",minExperienceYears:2,applicationDeadline:"2026-06-15",salaryRange:"₹6-12 LPA",viewCount:342,matchPercentage:85},
+            {id:2,jobTitle:"React Frontend Developer",companyName:"Infosys",location:"Bangalore",jobType:"FULL_TIME",isRemote:true,requiredSkills:"React,JavaScript,TypeScript,CSS",minExperienceYears:1,applicationDeadline:"2026-06-20",salaryRange:"₹5-10 LPA",viewCount:278,matchPercentage:72},
+            {id:3,jobTitle:"DevOps Engineer Intern",companyName:"Wipro",location:"Hyderabad",jobType:"INTERNSHIP",isRemote:false,requiredSkills:"Docker,Kubernetes,AWS,Linux",minExperienceYears:0,applicationDeadline:"2026-06-10",salaryRange:"₹25K/month",viewCount:512,matchPercentage:60},
+            {id:4,jobTitle:"Data Scientist",companyName:"Accenture",location:"Delhi",jobType:"FULL_TIME",isRemote:true,requiredSkills:"Python,Machine Learning,TensorFlow,SQL",minExperienceYears:3,applicationDeadline:"2026-06-25",salaryRange:"₹12-20 LPA",viewCount:189,matchPercentage:45},
+            {id:5,jobTitle:"Full Stack Developer",companyName:"StartupXYZ",location:"Remote",jobType:"CONTRACT",isRemote:true,requiredSkills:"React,Node.js,MongoDB,TypeScript",minExperienceYears:2,applicationDeadline:"2026-07-01",salaryRange:"₹8-15 LPA",viewCount:421,matchPercentage:90}
+        ];
+        renderJobs(mockJobs, {totalPages:1, totalElements:5});
+    }, 600);
+
+    // Real call (uncomment when backend is running):
+    // Api.get('/seeker/jobs?' + params).then(function(res) {
+    //     if (res.success) renderJobs(res.data.content, res.data);
+    // });
+}
+
+function renderJobs(jobs, page) {
+    var html = '';
+    if (!jobs || jobs.length === 0) {
+        html = '<div class="text-center py-5"><i class="fa-solid fa-search fa-3x text-muted mb-3 d-block"></i><p class="text-muted">No jobs found matching your criteria</p></div>';
+    }
+    jobs.forEach(function(j) {
+        var scoreColor = j.matchPercentage >= 70 ? 'bg-success' : j.matchPercentage >= 50 ? 'bg-warning' : 'bg-secondary';
+        var typeBadge = j.jobType === 'FULL_TIME' ? 'bg-primary' : j.jobType === 'INTERNSHIP' ? 'bg-info' : j.jobType === 'CONTRACT' ? 'bg-warning text-dark' : 'bg-secondary';
+        html += '<a href="job-detail.html?id=' + j.id + '" class="text-decoration-none"><div class="job-card"><div class="d-flex align-items-start gap-3"><div class="company-logo">' + (j.companyName || 'C').charAt(0) + '</div><div class="flex-grow-1"><div class="d-flex justify-content-between align-items-start"><h6 class="fw-bold mb-1 text-truncate">' + j.jobTitle + '</h6>' + (j.matchPercentage ? '<span class="match-pill">' + j.matchPercentage + '% Match</span>' : '') + '</div><p class="mb-1 small"><span class="text-muted">' + j.companyName + '</span> &middot; <i class="fa-solid fa-location-dot text-muted"></i> ' + (j.isRemote ? 'Remote' : j.location) + '</p><div class="d-flex gap-2 align-items-center flex-wrap mt-1"><span class="small">' + (j.requiredSkills || '').split(',').slice(0,3).map(function(s){return '<span class="badge bg-light text-dark me-1">'+s.trim()+'</span>'}).join('') + '</span></div><div class="d-flex justify-content-between align-items-center mt-2"><div><span class="job-type-badge ' + typeBadge + ' text-white">' + (j.jobType||'').replace('_',' ') + '</span><span class="small text-muted ms-2">' + (j.salaryRange||'') + '</span></div><small class="text-muted"><i class="fa-solid fa-clock me-1"></i>' + (j.applicationDeadline||'N/A') + '</small></div></div></div></div></a>';
+    });
+    document.getElementById('jobsContent').innerHTML = html;
+    Pagination.render('jobsPagination', currentPage, page.totalPages || 1, function(p) { currentPage = p; fetchJobs(); window.scrollTo({top:0,behavior:'smooth'}); });
+}
+
+fetchJobs();
+</script></body></html>

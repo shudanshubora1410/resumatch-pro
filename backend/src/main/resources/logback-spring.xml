@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property name="LOG_DIR" value="./logs"/>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder><pattern>[%d{yyyy-MM-dd HH:mm:ss}] [%level] [%thread] [%logger{36}] - %msg%n</pattern></encoder>
+  </appender>
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/application.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>30</maxHistory><totalSizeCap>1GB</totalSizeCap>
+    </rollingPolicy>
+    <encoder><pattern>[%d{yyyy-MM-dd HH:mm:ss}] [%level] [%X{requestId}] [%logger{36}] - %msg%n</pattern></encoder>
+  </appender>
+  <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/error.log</file>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter"><level>ERROR</level></filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>60</maxHistory>
+    </rollingPolicy>
+    <encoder><pattern>[%d{yyyy-MM-dd HH:mm:ss}] [ERROR] [%X{requestId}] [%logger{36}] - %msg%n%ex</pattern></encoder>
+  </appender>
+  <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/audit.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/audit.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>90</maxHistory>
+    </rollingPolicy>
+    <encoder><pattern>[%d{yyyy-MM-dd HH:mm:ss}] [AUDIT] [%X{userId}] [%X{action}] - %msg%n</pattern></encoder>
+  </appender>
+  <logger name="com.resumatchpro" level="DEBUG"/>
+  <logger name="com.resumatchpro.security" level="INFO"/>
+  <logger name="org.springframework.security" level="WARN"/>
+  <logger name="org.hibernate.SQL" level="DEBUG"/>
+  <logger name="AUDIT_LOGGER" level="INFO" additivity="false"><appender-ref ref="AUDIT_FILE"/></logger>
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/><appender-ref ref="FILE"/><appender-ref ref="ERROR_FILE"/>
+  </root>
+</configuration>

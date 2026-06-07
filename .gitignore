@@ -1,0 +1,40 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Logs
+logs/
+*.log
+
+# Uploads
+uploads/
+*.tmp
+
+# Environment
+.env
+application-local.properties
+
+# Node (if frontend has npm)
+node_modules/
+.npm/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.swp

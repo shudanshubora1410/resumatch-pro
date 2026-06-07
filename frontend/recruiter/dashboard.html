@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard – ResuMatch Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/dark-mode.css">
+    <style>
+        .stat-card { padding: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="dashboard.html">
+                <i class="fa-solid fa-file-lines text-primary"></i> ResuMatch Pro
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <button id="darkModeToggle" class="btn btn-outline-secondary btn-sm rounded-circle" aria-label="Toggle dark mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-label="User menu">
+                        <i class="fa-solid fa-building me-1"></i><span id="userNameDisplay">Recruiter</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item text-danger" href="#" onclick="Auth.logout()">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="dashboard-layout">
+        <aside class="dashboard-sidebar">
+            <nav>
+                <a href="dashboard.html" class="sidebar-link active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="post-job.html" class="sidebar-link"><i class="fa-solid fa-plus-circle"></i> Post Job</a>
+                <a href="manage-jobs.html" class="sidebar-link"><i class="fa-solid fa-briefcase"></i> Manage Jobs</a>
+                <a href="bulk-screen.html" class="sidebar-link"><i class="fa-solid fa-upload"></i> Bulk Screen</a>
+                <a href="job-analytics.html" class="sidebar-link"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
+                <a href="team-management.html" class="sidebar-link"><i class="fa-solid fa-users"></i> Team</a>
+            </nav>
+        </aside>
+        <main class="dashboard-main">
+            <h4 class="fw-bold mb-4">Recruiter Dashboard</h4>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-2"><div class="stat-card"><small class="text-muted">Active Jobs</small><h3 class="fw-bold mb-0" id="statJobs">-</h3></div></div>
+                <div class="col-6 col-md-2"><div class="stat-card"><small class="text-muted">Total Apps</small><h3 class="fw-bold mb-0" id="statApps">-</h3></div></div>
+                <div class="col-6 col-md-2"><div class="stat-card"><small class="text-muted">Shortlisted</small><h3 class="fw-bold mb-0" id="statShortlisted">-</h3></div></div>
+                <div class="col-6 col-md-2"><div class="stat-card"><small class="text-muted">Avg Score</small><h3 class="fw-bold mb-0" id="statAvgScore">-</h3></div></div>
+                <div class="col-6 col-md-2"><div class="stat-card"><small class="text-muted">Rejected</small><h3 class="fw-bold mb-0" id="statRejected">-</h3></div></div>
+                <div class="col-6 col-md-2"><div class="stat-card"><small class="text-muted">Pending</small><h3 class="fw-bold mb-0" id="statPending">-</h3></div></div>
+            </div>
+            <p class="text-muted">Full recruiter dashboard with analytics coming in Phase 5.</p>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/dark-mode.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        Utils.requireAuth();
+        const user = Utils.getUser();
+        if (user) document.getElementById('userNameDisplay').textContent = user.fullName || 'Recruiter';
+    </script>
+</body>
+</html>

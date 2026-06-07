@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bulk Screen – ResuMatch Pro</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/dark-mode.css">
+<style>.upload-zone{border:2px dashed var(--gray-300);border-radius:16px;padding:40px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--card-bg)}.upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:rgba(79,70,229,0.03)}.file-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--gray-100);border-radius:20px;font-size:0.85rem;margin:4px}.result-row{border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;background:var(--card-bg)}</style></head><body>
+<nav class="navbar navbar-light bg-white border-bottom shadow-sm"><div class="container-fluid px-4">
+<a class="navbar-brand fw-bold" href="dashboard.html"><i class="fa-solid fa-file-lines text-primary"></i> ResuMatch Pro</a>
+<div class="d-flex align-items-center gap-3">
+<button id="darkModeToggle" class="btn btn-outline-secondary btn-sm rounded-circle"><i class="fa-solid fa-moon"></i></button>
+<a href="dashboard.html" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-left me-1"></i> Dashboard</a></div></div></nav>
+
+<div class="dashboard-layout">
+<aside class="dashboard-sidebar"><nav>
+<a href="dashboard.html" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+<a href="manage-jobs.html" class="sidebar-link"><i class="fa-solid fa-briefcase"></i> Manage Jobs</a>
+<a href="bulk-screen.html" class="sidebar-link active"><i class="fa-solid fa-upload"></i> Bulk Screen</a></nav></aside>
+
+<main class="dashboard-main">
+<h4 class="fw-bold mb-3">Bulk Resume Screening</h4>
+<p class="text-muted mb-3">Upload multiple external resumes against a job listing. Get instant ATS scores and ranking — no candidate registration required.</p>
+
+<div class="row"><div class="col-lg-6">
+<div class="card mb-3"><div class="card-body">
+<div class="mb-3"><label class="form-label fw-medium">Select Job Listing</label><select class="form-select" id="targetJob"><option value="">Choose a job...</option><option value="1">Java Backend Developer (Active)</option><option value="2">React Frontend Developer (Active)</option></select></div>
+<div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+<i class="fa-solid fa-cloud-upload-alt fa-3x text-primary mb-3 d-block"></i>
+<h6>Drop resumes here or click to browse</h6><p class="text-muted small mb-0">PDF or DOCX · Max 5MB each · Max 50 files</p></div>
+<input type="file" id="fileInput" multiple accept=".pdf,.docx" style="display:none" onchange="handleFiles(this.files)">
+<div class="mt-3" id="filePreview"></div>
+<button class="btn btn-primary w-100 mt-3" id="screenBtn" disabled onclick="startScreening()"><i class="fa-solid fa-play me-2"></i>Start Screening</button>
+</div></div></div>
+
+<div class="col-lg-6"><div class="card"><div class="card-header bg-transparent"><h6 class="fw-bold mb-0"><i class="fa-solid fa-list-ol me-2"></i>Results</h6></div><div class="card-body" id="resultsContainer"><p class="text-muted text-center py-4">Upload files and start screening to see results here</p></div></div></div></div>
+</main></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/dark-mode.js"></script><script src="../js/utils.js"></script><script src="../js/api.js"></script><script src="../js/toast.js"></script><script src="../js/auth.js"></script>
+<script>
+Utils.requireAuth();
+var selectedFiles = [];
+
+var zone = document.getElementById('uploadZone');
+['dragenter','dragover','dragleave','drop'].forEach(function(evt) {
+    zone.addEventListener(evt, function(e) { e.preventDefault(); e.stopPropagation(); });
+});
+['dragenter','dragover'].forEach(function(evt) { zone.addEventListener(evt, function() { zone.classList.add('dragover'); }); });
+['dragleave','drop'].forEach(function(evt) { zone.addEventListener(evt, function() { zone.classList.remove('dragover'); }); });
+zone.addEventListener('drop', function(e) { handleFiles(e.dataTransfer.files); });
+
+function handleFiles(files) {
+    Array.from(files).forEach(function(f) {
+        if (!f.name.endsWith('.pdf') && !f.name.endsWith('.docx')) { Toast.show(f.name + ' is not PDF/DOCX', 'error'); return; }
+        if (f.size > 5*1024*1024) { Toast.show(f.name + ' exceeds 5MB', 'error'); return; }
+        if (selectedFiles.length >= 50) { Toast.show('Max 50 files', 'warning'); return; }
+        if (!selectedFiles.find(function(sf) { return sf.name === f.name; })) selectedFiles.push(f);
+    });
+    renderFilePreview();
+}
+
+function renderFilePreview() {
+    var html = selectedFiles.map(function(f, i) {
+        return '<span class="file-chip">' + f.name + ' (' + (f.size/1024).toFixed(0) + 'KB) <i class="fa-solid fa-xmark text-danger" style="cursor:pointer" onclick="removeFile(' + i + ')"></i></span>';
+    }).join('');
+    document.getElementById('filePreview').innerHTML = html;
+    document.getElementById('screenBtn').disabled = selectedFiles.length === 0 || !document.getElementById('targetJob').value;
+}
+
+function removeFile(idx) { selectedFiles.splice(idx, 1); renderFilePreview(); }
+
+function startScreening() {
+    document.getElementById('screenBtn').disabled = true;
+    document.getElementById('screenBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Screening...';
+    document.getElementById('resultsContainer').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary mb-2"></div><p class="text-muted">Analyzing ' + selectedFiles.length + ' resumes...</p></div>';
+    var jobId = document.getElementById("targetJob").value;
+    var formData = new FormData();
+    selectedFiles.forEach(function(f) { formData.append("files", f); });
+    var self = this;
+    Api.upload("/recruiter/jobs/" + jobId + "/bulk-screen", formData).then(function(r) {
+      if (r.success) {
+        document.getElementById("resultsContainer").innerHTML = '<div class="alert alert-success">Processing ' + selectedFiles.length + ' resumes...</div>';
+        setTimeout(function() { Api.get("/recruiter/jobs/" + jobId + "/external-results").then(function(rr) {
+          if (rr.success && rr.data) {
+            var html = rr.data.map(function(f, i) {
+              var score = f.score || 0;
+              var color = score >= 70 ? "#10B981" : score >= 50 ? "#F59E0B" : "#EF4444";
+              return '<div class="result-row"><div class="d-flex justify-content-between align-items-center"><div><span class="fw-medium">' + (i+1) + '. ' + (f.originalFilename||"Resume").replace(/\.(pdf|docx)$/i,"") + '</span></div><div><span style="font-weight:700;color:' + color + '">' + score + '/100</span></div><button class="btn btn-sm btn-outline-primary">Download</button></div></div>';
+            }).join("");
+            document.getElementById("resultsContainer").innerHTML = html || '<p class="text-muted">No results yet. Check back shortly.</p>';
+          }
+        }); }, 2000);
+      } else {
+        document.getElementById("resultsContainer").innerHTML = '<div class="alert alert-danger">' + (r.message||"Screening failed") + '</div>';
+      }
+    }).catch(function() {
+      document.getElementById("resultsContainer").innerHTML = '<div class="alert alert-danger">Network error</div>';
+    });
+    document.getElementById("screenBtn").innerHTML = '<i class="fa-solid fa-play me-2"></i>Start Screening';
+    document.getElementById("screenBtn").disabled = false;
+}
+</script></body></html>
